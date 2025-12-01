@@ -3,112 +3,114 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clinic</title>
+  <title>Patient Management System</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-  <!-- MESSAGES -->
-  {% if message %}
-  <p style="color: green;">{{ message }}</p>
-  {% endif %}
-  {% if error %}
-  <p style="color: red;">{{ error }}</p>
-  {% endif %}
+  <div class="container">
 
-  <hr>
+    <h1>Patient Management System</h1>
 
-  <h2>Register a new patient</h2>
-  <form method="post" action="/">
-    <input type="hidden" name="action" value="register">
-    <label>
-      Name:
-      <input type="text" name="name">
-    </label><br>
-    <label>
-      Age:
-      <input type="number" name="age">
-    </label><br>
-    <label>
-      Phone:
-      <input type="text" name="phone">
-    </label><br>
-    <label>
-      ID (CPF):
-      <input type="text" name="cpf">
-    </label><br>
-    <button type="submit">Register patient</button>
-  </form>
+    {% if message %}
+    <div class="message success">{{ message }}</div>
+    {% endif %}
 
-  <hr>
+    {% if error %}
+    <div class="message error">{{ error }}</div>
+    {% endif %}
 
-  <h2>Registered patients</h2>
-  {% if patients %}
-  <table border="1" cellpadding="5">
-    <tr>
-      <th># (index)</th>
-      <th>Name</th>
-      <th>Age</th>
-      <th>Phone</th>
-      <th>ID (CPF)</th>
-    </tr>
-    {% for p in patients %}
-    <tr>
-      <td>{{ loop.index0 }}</td>
-      <td>{{ p.name }}</td>
-      <td>{{ p.age }}</td>
-      <td>{{ p.phone }}</td>
-      <td>{{ p.cpf }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-  <p>No patients registered yet.</p>
-  {% endif %}
+    <div class="section">
+      <h2>Register a new patient</h2>
+      <form method="post" action="/">
+        <input type="hidden" name="action" value="register">
 
-  <hr>
+        <label>Name:</label>
+        <input type="text" name="name">
 
-  <h2>Add patient to the queue</h2>
-  {% if patients %}
-  <form method="post" action="/">
-    <input type="hidden" name="action" value="add_to_queue">
-    <label>
-      Choose a patient (use index #):
-      <select name="patient_index">
+        <label>Age:</label>
+        <input type="number" name="age">
+
+        <label>Phone:</label>
+        <input type="text" name="phone">
+
+        <label>ID (CPF):</label>
+        <input type="text" name="cpf">
+
+        <button type="submit">Register patient</button>
+      </form>
+    </div>
+
+    <div class="section">
+      <h2>Registered patients</h2>
+      {% if patients %}
+      <table>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Phone</th>
+          <th>ID (CPF)</th>
+        </tr>
         {% for p in patients %}
-        <option value="{{ loop.index0 }}">
-          {{ loop.index0 }} - {{ p.name }} ({{ p.cpf }})
-        </option>
+        <tr>
+          <td>{{ loop.index0 }}</td>
+          <td>{{ p.name }}</td>
+          <td>{{ p.age }}</td>
+          <td>{{ p.phone }}</td>
+          <td>{{ p.cpf }}</td>
+        </tr>
         {% endfor %}
-      </select>
-    </label>
-    <button type="submit">Add to queue</button>
-  </form>
-  {% else %}
-  <p>You must register patients before using the queue.</p>
-  {% endif %}
+      </table>
+      {% else %}
+      <p>No patients registered yet.</p>
+      {% endif %}
+    </div>
 
-  <hr>
+    <div class="section">
+      <h2>Add patient to the queue</h2>
 
-  <h2>Current queue</h2>
-  {% if queue %}
-  <ol>
-    {% for p in queue %}
-    <li>
-      {{ p.name }} | {{ p.age }} years |
-      {{ p.phone }} | ID (CPF): {{ p.cpf }}
-    </li>
-    {% endfor %}
-  </ol>
-  {% else %}
-  <p>No patients in the queue.</p>
-  {% endif %}
+      {% if patients %}
+      <form method="post" action="/">
+        <input type="hidden" name="action" value="add_to_queue">
 
-  <form method="post">
-    <input type="hidden" name="action" value="attend_next">
-    <button type="submit">Attend next patient</button>
-  </form>
+        <label>Select a patient:</label>
+        <select name="patient_index">
+          {% for p in patients %}
+          <option value="{{ loop.index0 }}">
+            {{ loop.index0 }} - {{ p.name }} ({{ p.cpf }})
+          </option>
+          {% endfor %}
+        </select>
+
+        <button type="submit">Add to queue</button>
+      </form>
+      {% else %}
+      <p>You must register patients first.</p>
+      {% endif %}
+    </div>
+
+    <div class="section">
+      <h2>Current Queue</h2>
+
+      {% if queue %}
+      <ol class="queue-list">
+        {% for p in queue %}
+        <li>{{ p.name }} | {{ p.age }} years | {{ p.phone }} | ID: {{ p.cpf }}</li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <p>No patients in the queue.</p>
+      {% endif %}
+
+      <form method="post" action="/">
+        <input type="hidden" name="action" value="attend_next">
+        <button type="submit">Attend next patient</button>
+      </form>
+    </div>
+
+  </div>
 
 </body>
 
