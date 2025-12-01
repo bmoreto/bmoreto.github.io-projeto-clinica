@@ -8,8 +8,19 @@
 </head>
 
 <body>
+  <header class="navbar">
+    <div class="nav-brand">Vida+ Clinic</div>
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#register">Register</a>
+      <a href="#patients">Patients</a>
+      <a href="#statistics">Statistics</a>
+      <a href="#search">Search</a>
+      <a href="#queue">Queue</a>
+    </nav>
+  </header>
 
-  <div class="container">
+  <div class="container" id="home">
 
     <h1>Patient Management System</h1>
 
@@ -21,7 +32,7 @@
     <div class="message error">{{ error }}</div>
     {% endif %}
 
-    <div class="section">
+    <div class="section" id="register">
       <h2>Register a new patient</h2>
       <form method="post" action="/">
         <input type="hidden" name="action" value="register">
@@ -42,8 +53,9 @@
       </form>
     </div>
 
-    <div class="section">
+    <div class="section" id="patients">
       <h2>Registered patients</h2>
+
       {% if patients %}
       <table>
         <tr>
@@ -68,7 +80,64 @@
       {% endif %}
     </div>
 
-    <div class="section">
+    <div class="section" id="statistics">
+      <h2>Statistics</h2>
+
+      {% if stats %}
+      <p><strong>Total patients:</strong> {{ stats.total }}</p>
+      <p><strong>Average age:</strong> {{ stats.avg_age }} years</p>
+      <p><strong>Youngest patient:</strong>
+        {{ stats.youngest.name }} ({{ stats.youngest.age }} years)
+      </p>
+      <p><strong>Oldest patient:</strong>
+        {{ stats.oldest.name }} ({{ stats.oldest.age }} years)
+      </p>
+      {% else %}
+      <p>No data available. Register patients first.</p>
+      {% endif %}
+    </div>
+
+    <div class="section" id="search">
+      <h2>Search for a patient</h2>
+
+      <form method="post" action="/">
+        <input type="hidden" name="action" value="search">
+
+        <label>Enter a name or part of a name:</label>
+        <input type="text" name="search_name" value="{{ search_query or '' }}">
+
+        <button type="submit">Search</button>
+      </form>
+
+      {% if search_results is not none %}
+      {% if search_results %}
+      <h3>Search results:</h3>
+
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Phone</th>
+          <th>ID (CPF)</th>
+        </tr>
+
+        {% for p in search_results %}
+        <tr>
+          <td>{{ p.name }}</td>
+          <td>{{ p.age }}</td>
+          <td>{{ p.phone }}</td>
+          <td>{{ p.cpf }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      {% else %}
+      <p>No patients found with that name.</p>
+      {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="section" id="queue">
       <h2>Add patient to the queue</h2>
 
       {% if patients %}
@@ -89,9 +158,7 @@
       {% else %}
       <p>You must register patients first.</p>
       {% endif %}
-    </div>
 
-    <div class="section">
       <h2>Current Queue</h2>
 
       {% if queue %}

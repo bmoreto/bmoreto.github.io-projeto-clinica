@@ -1,13 +1,9 @@
 from flask import Flask, render_template, request
 
-# diz ao Flask que os templates (HTML) estão na pasta raiz "."
 app = Flask(__name__, template_folder=".")
 
-patients = []   # lista de pacientes cadastrados
-queue = []      # fila de atendimento (usa os mesmos pacientes)
-
-
-# ===== FUNÇÕES DE NEGÓCIO =====
+patients = []   
+queue = []      
 
 def register_patient(name, age_str, phone, cpf):
     name = name.strip()
@@ -32,6 +28,48 @@ def register_patient(name, age_str, phone, cpf):
     patients.append(patient)
     return True, f"Patient {name} successfully registered!"
 
+def total_patients():
+    return len(patients)
+
+def average_age():
+    if not patients:
+        return 0
+    total = sum(p["age"] for p in patients)
+    return total / len(patients)
+
+def youngest_patient():
+    if not patients:
+        return None
+    return min(patients, key=lambda p: p["age"])
+
+
+def oldest_patient():
+    if not patients:
+        return None
+    return max(patients, key=lambda p: p["age"])
+
+def search_patient(query):
+    if not query:
+        return []
+    query = query.strip().lower()
+    return [p for p in patients if query in p["name"].lower()]
+
+
+def list_patients():
+    return sorted(patients, key=lambda x: x["name"].lower())
+
+
+def statistics():
+    if not patients:
+        return None
+
+    return {
+        "total": total_patients(),
+        "avg_age": round(average_age(), 1),
+        "youngest": youngest_patient(),
+        "oldest": oldest_patient(),
+    }
+
 
 def add_to_queue(index_str):
     if not patients:
@@ -42,14 +80,12 @@ def add_to_queue(index_str):
     except ValueError:
         return False, "Invalid patient number."
 
-    # usamos index da lista (0, 1, 2...)
     if idx < 0 or idx >= len(patients):
         return False, "Patient not found."
 
     patient = patients[idx]
     queue.append(patient)
     return True, f"Patient {patient['name']} added to the queue."
-
 
 def attend_next():
     if not queue:
@@ -63,17 +99,16 @@ def attend_next():
     return True, msg
 
 
-# ===== ROTA PRINCIPAL (HTML) =====
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     message = ""
     error = ""
+    search_results = None
+    search_query = ""
 
     if request.method == "POST":
         action = request.form.get("action")
 
-        # 1) Cadastrar paciente
         if action == "register":
             name = request.form.get("name", "")
             age = request.form.get("age", "")
@@ -86,7 +121,6 @@ def index():
             else:
                 error = msg
 
-        # 2) Adicionar paciente na fila
         elif action == "add_to_queue":
             patient_index = request.form.get("patient_index", "")
             ok, msg = add_to_queue(patient_index)
@@ -95,7 +129,6 @@ def index():
             else:
                 error = msg
 
-        # 3) Atender próximo paciente
         elif action == "attend_next":
             ok, msg = attend_next()
             if ok:
@@ -103,12 +136,23 @@ def index():
             else:
                 error = msg
 
+        elif action == "search":
+            search_query = request.form.get("search_name", "")
+            search_results = search_patient(search_query)
+
+    stats = statistics()
+
+    ordered_patients = list_patients()
+
     return render_template(
         "index.html",
-        patients=patients,
+        patients=ordered_patients,
         queue=queue,
         message=message,
         error=error,
+        stats=stats,
+        search_results=search_results,
+        search_query=search_query,
     )
 
 
