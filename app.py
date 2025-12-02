@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__, template_folder=".")
 
-patients = []   
-queue = []      
+patients = []
+current_queue = []
+
 
 def register_patient(name, age_str, phone, cpf):
     name = name.strip()
@@ -28,14 +29,17 @@ def register_patient(name, age_str, phone, cpf):
     patients.append(patient)
     return True, f"Patient {name} successfully registered!"
 
+
 def total_patients():
     return len(patients)
+
 
 def average_age():
     if not patients:
         return 0
     total = sum(p["age"] for p in patients)
     return total / len(patients)
+
 
 def youngest_patient():
     if not patients:
@@ -48,6 +52,7 @@ def oldest_patient():
         return None
     return max(patients, key=lambda p: p["age"])
 
+
 def search_patient(query):
     if not query:
         return []
@@ -56,13 +61,12 @@ def search_patient(query):
 
 
 def list_patients():
-    return sorted(patients, key=lambda x: x["name"].lower())
+    return patients
 
 
 def statistics():
     if not patients:
         return None
-
     return {
         "total": total_patients(),
         "avg_age": round(average_age(), 1),
@@ -84,14 +88,16 @@ def add_to_queue(index_str):
         return False, "Patient not found."
 
     patient = patients[idx]
-    queue.append(patient)
-    return True, f"Patient {patient['name']} added to the queue."
+    current_queue.append(patient)
+    return True, f"Patient {patient['name']} added to the current queue."
+
 
 def attend_next():
-    if not queue:
-        return False, "No patients in the queue."
+    if not current_queue:
+        return False, "No patients in the current queue."
 
-    patient = queue.pop(0)
+    patient = current_queue.pop(0)
+
     msg = (
         f"Attending: {patient['name']} | {patient['age']} years | "
         f"{patient['phone']} | ID (CPF): {patient['cpf']}"
@@ -101,7 +107,7 @@ def attend_next():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    message = ""
+    message = request.args.get("message", "")
     error = ""
     search_results = None
     search_query = ""
@@ -114,10 +120,9 @@ def index():
             age = request.form.get("age", "")
             phone = request.form.get("phone", "")
             cpf = request.form.get("cpf", "")
-
             ok, msg = register_patient(name, age, phone, cpf)
             if ok:
-                message = msg
+                return redirect(url_for("index", message=msg))
             else:
                 error = msg
 
@@ -125,14 +130,14 @@ def index():
             patient_index = request.form.get("patient_index", "")
             ok, msg = add_to_queue(patient_index)
             if ok:
-                message = msg
+                return redirect(url_for("index", message=msg))
             else:
                 error = msg
 
         elif action == "attend_next":
             ok, msg = attend_next()
             if ok:
-                message = msg
+                return redirect(url_for("index", message=msg))
             else:
                 error = msg
 
@@ -141,13 +146,12 @@ def index():
             search_results = search_patient(search_query)
 
     stats = statistics()
-
     ordered_patients = list_patients()
 
     return render_template(
         "index.html",
         patients=ordered_patients,
-        queue=queue,
+        current_queue=current_queue,
         message=message,
         error=error,
         stats=stats,

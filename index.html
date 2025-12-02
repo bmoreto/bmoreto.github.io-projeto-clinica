@@ -8,17 +8,6 @@
 </head>
 
 <body>
-  <header class="navbar">
-    <div class="nav-brand">Vida+ Clinic</div>
-    <nav class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#register">Register</a>
-      <a href="#patients">Patients</a>
-      <a href="#statistics">Statistics</a>
-      <a href="#search">Search</a>
-      <a href="#queue">Queue</a>
-    </nav>
-  </header>
 
   <div class="container" id="home">
 
@@ -34,7 +23,7 @@
 
     <div class="section" id="register">
       <h2>Register a new patient</h2>
-      <form method="post" action="/">
+      <form method="post" action="/" autocomplete="off">
         <input type="hidden" name="action" value="register">
 
         <label>Name:</label>
@@ -112,7 +101,6 @@
       {% if search_results is not none %}
       {% if search_results %}
       <h3>Search results:</h3>
-
       <table>
         <tr>
           <th>Name</th>
@@ -120,7 +108,6 @@
           <th>Phone</th>
           <th>ID (CPF)</th>
         </tr>
-
         {% for p in search_results %}
         <tr>
           <td>{{ p.name }}</td>
@@ -130,7 +117,6 @@
         </tr>
         {% endfor %}
       </table>
-
       {% else %}
       <p>No patients found with that name.</p>
       {% endif %}
@@ -138,7 +124,7 @@
     </div>
 
     <div class="section" id="queue">
-      <h2>Add patient to the queue</h2>
+      <h2>Add patient to Current Queue</h2>
 
       {% if patients %}
       <form method="post" action="/">
@@ -153,7 +139,7 @@
           {% endfor %}
         </select>
 
-        <button type="submit">Add to queue</button>
+        <button type="submit">Add to current queue</button>
       </form>
       {% else %}
       <p>You must register patients first.</p>
@@ -161,14 +147,17 @@
 
       <h2>Current Queue</h2>
 
-      {% if queue %}
+      {% if current_queue %}
       <ol class="queue-list">
-        {% for p in queue %}
-        <li>{{ p.name }} | {{ p.age }} years | {{ p.phone }} | ID: {{ p.cpf }}</li>
+        {% for p in current_queue %}
+        <li>
+          {{ p.name }} | {{ p.age }} years |
+          {{ p.phone }} | ID: {{ p.cpf }}
+        </li>
         {% endfor %}
       </ol>
       {% else %}
-      <p>No patients in the queue.</p>
+      <p>No patients in the current queue.</p>
       {% endif %}
 
       <form method="post" action="/">
