@@ -21,6 +21,7 @@ li {
 }
 
 .title {
+  text-align: center;
   font-size: 2rem;
   margin-bottom: 24px;
 }
@@ -86,7 +87,7 @@ select:focus {
   margin-top: 8px;
   transition: 0.2s;
   width: fit-content;
-  font-size: 1rem;
+  font-size: 0.9rem;
   letter-spacing: 0.05em;
 }
 
@@ -140,40 +141,4 @@ select:focus {
 .error {
   background: #fee2e2;
   color: #991b1b;
-}
-
-@media (min-width: 768px) {
-  .container {
-    padding: 0 24px;
-    margin-top: 24px;
-  }
-
-  .title {
-    font-size: 1.9rem;
-    margin-bottom: 20px;
-  }
-
-  .subtitle {
-    font-size: 1.35rem;
-    margin-bottom: 14px;
-  }
-
-  .section {
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-
-  .form {
-    max-width: 480px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding: 0 32px;
-  }
-
-  .section {
-    margin-bottom: 24px;
-  }
 }
